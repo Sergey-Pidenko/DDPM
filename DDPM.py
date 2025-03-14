@@ -38,7 +38,7 @@ def get_time_condition(t, T=1000, size=(512, 512)):
     # (batch_size,) -> (batch_size, 1, 1)
     t_shaped = (t.float() / float(T)).view(-1, 1, 1)
     # Тиражируем по пространственным координатам
-    t_cond = t_shaped.repeat(1, size[0], size[1])  # (batch_size, H, W)
+    t_cond = t_shaped.repeat(1, size[0], size[1]).unsqueeze(1)  # (batch_size, H, W)
     return t_cond
 
 def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_cumprod, num_steps):
@@ -66,7 +66,7 @@ def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_
         for step in tqdm(range(num_steps - 1, -1, -1)):
             t = torch.full((image.size(0),), step, dtype=torch.long, device=device)
             # Генерируем “временное” условие
-            t_cond = get_time_condition(tensor=t).to(device)
+            t_cond = get_time_condition(t).to(device)
 
             # Формируем вход для модели: [изображение, условие, временной признак]
             inp = torch.cat([image, cond, t_cond], dim=1)
@@ -95,12 +95,12 @@ def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_
 def train(model, cond_model, train_loader, optimizer, loss_fn, device, betas, T=1000, batch_size=8):
     model.train()
     for low_res, high_res in tqdm(train_loader, desc="Training"):
-        t = torch.randint(0, T, (batch_size,), dtype=torch.long)
+        t = torch.randint(low=0, high=T, size=(batch_size,), dtype=torch.long)
         noisy_images, noise = q_sample(high_res, t, betas)
 
         low_res, high_res = low_res.to(device), high_res.to(device)
         noisy_images, noise = noisy_images.to(device), noise.to(device)
-        t_cond = get_time_condition(tensor=t).to(device)
+        t_cond = get_time_condition(t).to(device)
         
         cond, _, _ = cond_model(low_res)
 
@@ -123,12 +123,12 @@ def validate(model, cond_model, val_loader, loss_fn, device, betas, T=1000, batc
     val_loss = 0.0
     with torch.no_grad():
         for low_res, high_res in tqdm(val_loader, desc="Validation"):
-            t = torch.randint(0, T, (batch_size,), dtype=torch.long)
+            t = torch.randint(low=0, high=T, size=(batch_size,), dtype=torch.long)
             noisy_images, noise = q_sample(high_res, t, betas)
 
             low_res, high_res = low_res.to(device), high_res.to(device)
             noisy_images, noise = noisy_images.to(device), noise.to(device)
-            t_cond = get_time_condition(tensor=t).to(device)
+            t_cond = get_time_condition(t).to(device)
 
             cond, _, _ = cond_model(low_res)
 
