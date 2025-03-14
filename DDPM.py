@@ -92,7 +92,7 @@ def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_
     return image
 
 
-def train(model, cond_model, train_loader, optimizer, loss_fn, device, T=1000, batch_size=8, betas):
+def train(model, cond_model, train_loader, optimizer, loss_fn, device, betas, T=1000, batch_size=8):
     model.train()
     for low_res, high_res in tqdm(train_loader, desc="Training"):
         t = torch.randint(0, T, (batch_size,), dtype=torch.long)
@@ -118,7 +118,7 @@ def train(model, cond_model, train_loader, optimizer, loss_fn, device, T=1000, b
     torch.cuda.empty_cache()
     gc.collect()
 
-def validate(model, cond_model, val_loader, loss_fn, device, T=1000, batch_size=8):
+def validate(model, cond_model, val_loader, loss_fn, device, betas, T=1000, batch_size=8):
     model.eval()
     val_loss = 0.0
     with torch.no_grad():
