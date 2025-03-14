@@ -41,7 +41,7 @@ def get_time_condition(t, T=1000, size=(512, 512)):
     t_cond = t_shaped.repeat(1, size[0], size[1])  # (batch_size, H, W)
     return t_cond
 
-def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_cumprod, num_steps):
+def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_cumprod, num_steps, betas):
     """
     Применяет диффузионную модель для удаления шума из изображения.
 
@@ -92,7 +92,7 @@ def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_
     return image
 
 
-def train(model, cond_model, train_loader, optimizer, loss_fn, device, T=1000, batch_size=8):
+def train(model, cond_model, train_loader, optimizer, loss_fn, device, T=1000, batch_size=8, betas):
     model.train()
     for low_res, high_res in tqdm(train_loader, desc="Training"):
         t = torch.randint(0, T, (batch_size,), dtype=torch.long)
