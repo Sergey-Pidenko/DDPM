@@ -92,7 +92,7 @@ def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_
     return image
 
 
-def train(model, cond_model, train_loader, optimizer, loss_fn, device, T):
+def train(model, cond_model, train_loader, optimizer, loss_fn, device, T=1000):
     model.train()
     for low_res, high_res in tqdm(train_loader, desc="Training"):
         t = torch.randint(0, T, (batch_size,), dtype=torch.long)
