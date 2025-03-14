@@ -94,7 +94,7 @@ def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_
 
 def train(model, cond_model, train_loader, optimizer, loss_fn, device, betas, T=1000, batch_size=8):
     model.train()
-    for low_res, high_res in train_loader, desc="Training":
+    for low_res, high_res in train_loader:
         t = torch.randint(low=0, high=T, size=(batch_size,), dtype=torch.long)
         noisy_images, noise = q_sample(high_res, t, betas)
 
@@ -122,7 +122,7 @@ def validate(model, cond_model, val_loader, loss_fn, device, betas, T=1000, batc
     model.eval()
     val_loss = 0.0
     with torch.no_grad():
-        for low_res, high_res in val_loader, desc="Validation":
+        for low_res, high_res in val_loader:
             t = torch.randint(low=0, high=T, size=(batch_size,), dtype=torch.long)
             noisy_images, noise = q_sample(high_res, t, betas)
 
