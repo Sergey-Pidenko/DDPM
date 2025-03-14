@@ -41,7 +41,7 @@ def get_time_condition(t, T=1000, size=(512, 512)):
     t_cond = t_shaped.repeat(1, size[0], size[1])  # (batch_size, H, W)
     return t_cond
 
-def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_cumprod, num_steps, betas):
+def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_cumprod, num_steps):
     """
     Применяет диффузионную модель для удаления шума из изображения.
 
