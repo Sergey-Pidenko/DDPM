@@ -96,7 +96,7 @@ def train(model, cond_model, train_loader, optimizer, loss_fn, device, T=1000, b
     model.train()
     for low_res, high_res in tqdm(train_loader, desc="Training"):
         t = torch.randint(0, T, (batch_size,), dtype=torch.long)
-        noisy_images, noise = Noise.q_sample(high_res, t, betas)
+        noisy_images, noise = q_sample(high_res, t, betas)
 
         low_res, high_res = low_res.to(device), high_res.to(device)
         noisy_images, noise = noisy_images.to(device), noise.to(device)
@@ -124,7 +124,7 @@ def validate(model, cond_model, val_loader, loss_fn, device, T=1000, batch_size=
     with torch.no_grad():
         for low_res, high_res in tqdm(val_loader, desc="Validation"):
             t = torch.randint(0, T, (batch_size,), dtype=torch.long)
-            noisy_images, noise = Noise.q_sample(high_res, t, betas)
+            noisy_images, noise = q_sample(high_res, t, betas)
 
             low_res, high_res = low_res.to(device), high_res.to(device)
             noisy_images, noise = noisy_images.to(device), noise.to(device)
