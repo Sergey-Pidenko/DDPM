@@ -97,7 +97,7 @@ def train(model, cond_model, train_loader, optimizer, loss_fn, device, T=1000, b
     for low_res, high_res in tqdm(train_loader, desc="Training"):
         t = torch.randint(0, T, (batch_size,), dtype=torch.long)
         noisy_images, noise = Noise.q_sample(high_res, t, betas)
-ss
+
         low_res, high_res = low_res.to(device), high_res.to(device)
         noisy_images, noise = noisy_images.to(device), noise.to(device)
         t_cond = get_time_condition(tensor=t).to(device)
