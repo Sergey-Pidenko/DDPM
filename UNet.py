@@ -1,13 +1,17 @@
 import torch
 import torch.nn as nn
+import torch
+import torch.nn as nn
 
 class DoubleConv(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(DoubleConv, self).__init__()
         self.double_conv = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True)
         )
 
@@ -15,7 +19,7 @@ class DoubleConv(nn.Module):
         return self.double_conv(x)
 
 class UNet(nn.Module):
-    def __init__(self, in_channels=7, out_channels=3, num_layers=4, base_channels=64):
+    def __init__(self, in_channels=7, out_channels=3, num_layers=6, base_channels=64):
         super(UNet, self).__init__()
         
         # Encoder
@@ -26,7 +30,10 @@ class UNet(nn.Module):
             channels = base_channels * (2 ** i)
 
         # Middle
-        self.middle = DoubleConv(channels, channels * 2)
+        self.middle = nn.Sequential(
+            DoubleConv(channels, channels * 2),
+            nn.Dropout(p=0.5)  # Добавление Dropout
+        )
 
         # Decoder
         self.decoder = nn.ModuleList()
@@ -59,3 +66,4 @@ class UNet(nn.Module):
             x = self.decoder[i+1](x)
 
         return self.out_conv(x)
+
