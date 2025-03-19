@@ -72,7 +72,7 @@ def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_
 def train(model, cond_model, train_loader, optimizer, loss_fn, device, betas, T=1000, batch_size=8):
     model.train()
     for low_res, high_res in train_loader:
-        t = torch.randint(low=0, high=T, size=(batch_size,), dtype=torch.long).to(device)
+        t = torch.randint(low=0, high=T, size=(batch_size,), dtype=torch.long)
         noisy_images, noise = q_sample(high_res, t, betas)
 
         low_res, high_res = low_res.to(device), high_res.to(device)
@@ -81,7 +81,7 @@ def train(model, cond_model, train_loader, optimizer, loss_fn, device, betas, T=
         cond, _, _ = cond_model(low_res)
 
         inp = torch.concat([noisy_images, cond], dim=1)
-        
+        t = t.to(device)
         optimizer.zero_grad()
         # Прямой проход
         outputs = model(inp, t)
@@ -99,7 +99,7 @@ def validate(model, cond_model, val_loader, loss_fn, device, betas, T=1000, batc
     val_loss = 0.0
     with torch.no_grad():
         for low_res, high_res in val_loader:
-            t = torch.randint(low=0, high=T, size=(batch_size,), dtype=torch.long).to(device)
+            t = torch.randint(low=0, high=T, size=(batch_size,), dtype=torch.long)
             noisy_images, noise = q_sample(high_res, t, betas)
 
             low_res, high_res = low_res.to(device), high_res.to(device)
@@ -108,7 +108,7 @@ def validate(model, cond_model, val_loader, loss_fn, device, betas, T=1000, batc
             cond, _, _ = cond_model(low_res)
 
             inp = torch.concat([noisy_images, cond], dim=1)
-
+            t = t.to(device)
             # Прямой проход
             outputs = model(inp, t)
             # Вычисление потери
