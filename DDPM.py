@@ -17,7 +17,7 @@ def q_sample(x_start, t, betas):
     sqrt_alphas_cumprod_t = torch.sqrt(cumprod_betas[t]).view(-1, 1, 1, 1)
     sqrt_one_minus_alphas_cumprod_t = torch.sqrt(1 - cumprod_betas[t]).view(-1, 1, 1, 1)
 
-    noisy_image = sqrt_alphas_cumprod_t * x_start + sqrt_one_minus_alphas_cumprod_t * noise
+    noisy_image = torch.clamp(sqrt_alphas_cumprod_t * x_start + sqrt_one_minus_alphas_cumprod_t * noise, -1, 1)
     return noisy_image, noise
 
 def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_cumprod, num_steps):
