@@ -65,8 +65,12 @@ def denoise_image(model, cond_model, low_res, noisy_image, betas, alphas, alpha_
             image = (1 / torch.sqrt(alpha_t)) * (
                 image - (beta_t / torch.sqrt(1 - alpha_t)) * predicted_noise
             ) + torch.sqrt(beta_t) * noise
+
+            # Клиппинг значений изображения
+            image = torch.clamp(image, -1.0, 1.0)
         
     return image
+
 
 
 def train(model, cond_model, train_loader, optimizer, loss_fn, device, betas, T=1000, batch_size=8):
